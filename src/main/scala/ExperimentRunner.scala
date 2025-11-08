@@ -60,7 +60,7 @@ object ExperimentRunner {
   /**
    * Ejecuta experimento con claves numéricas
    */
-  private def runNumericKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
+  def runNumericKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
     println(s"\n🔢 EJECUTANDO 3.1 CLAVES NUMÉRICAS")
     println("   Estrategia: releaseYear + hash multiplicativo para unicidad")
 
@@ -101,7 +101,7 @@ object ExperimentRunner {
   /**
    * Ejecuta experimento con claves textuales
    */
-  private def runTextKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
+  def runTextKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
     println(s"\n🔤 EJECUTANDO 3.2 CLAVES TEXTUALES")
     println("   Estrategia: title → polynomial hash con aritmética modular")
 
@@ -141,7 +141,7 @@ object ExperimentRunner {
   /**
    * Construye un B-tree a partir de una lista de claves
    */
-  private def buildTreeWithKeys(keys: List[Int], t: Int): BTree = {
+  def buildTreeWithKeys(keys: List[Int], t: Int): BTree = {
     keys.foldLeft(BTree.empty(t))((tree, key) => tree.insert(key))
   }
 
@@ -278,18 +278,18 @@ object ExperimentRunner {
   }
 
   /**
-   * Método auxiliar para ejecutar un experimento rápido de prueba
+   * meotodo auxiliar para ejecutar un experimento rápido de prueba
    */
   def runQuickTest(records: List[NetflixRecord], t: Int = 3): Unit = {
-    println("🚀 EJECUTANDO PRUEBA RÁPIDA...")
+    println("EJECUTANDO PRUEBA RÁPIDA...")
 
     val sample = NetflixDataLoader.sampleRecords(records, math.min(100, records.length))
 
     val numericResult = runNumericKeyExperiment(sample, t)
     val textResult = runTextKeyExperiment(sample, t)
 
-    println("\n✅ PRUEBA RÁPIDA COMPLETADA")
-    println(s"📊 Claves numéricas: ${numericResult.treeHeight} niveles de altura")
-    println(s"📊 Claves textuales: ${textResult.treeHeight} niveles de altura")
+    println("\nPRUEBA RÁPIDA COMPLETADA")
+    println(s"Claves numéricas: ${numericResult.treeHeight} niveles de altura")
+    println(s"Claves textuales: ${textResult.treeHeight} niveles de altura")
   }
 }

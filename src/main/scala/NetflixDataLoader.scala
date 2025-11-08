@@ -113,10 +113,21 @@ object NetflixDataLoader {
   /**
    * Divide una línea CSV manejando comas dentro de comillas
    */
+  // En NetflixDataLoader.scala - corregir el metodo splitCSV
   def splitCSV(line: String): Array[String] = {
-    // Regex para dividir por comas que no estén dentro de comillas
+    // Manejo mejorado de CSV - dividir por comas fuera de comillas
     line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)
-      .map(_.trim)
+      .map { field =>
+        // Remover comillas al inicio y final completamente
+        val cleaned = field.trim
+          .replaceAll("^\"\"", "\"") // Manejar comillas dobles al inicio
+          .replaceAll("^\"", "")     // Remover comilla inicial
+          .replaceAll("\"$", "")     // Remover comilla final
+          .replaceAll("\"\"", "\"")  // Manejar comillas escapadas
+          .trim
+
+        if (cleaned.isEmpty) "" else cleaned
+      }
   }
 
   /**

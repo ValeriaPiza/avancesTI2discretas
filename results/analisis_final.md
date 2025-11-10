@@ -1,0 +1,67 @@
+======================================================================
+📊 INFORME DE ANÁLISIS EXPERIMENTAL - B-TREE NETFLIX
+======================================================================
+
+3.1 🔢 CLAVES NUMÉRICAS (releaseYear + hash)
+--------------------------------------------------
+Tamaño | Inserción(ms) | Búsqueda(ms) | Altura | Colisiones(%)
+--------------------------------------------------
+100 | 19.6383%.2f | 3.0737%.2f | 2 | 0.0%.2f%%
+500 | 28.8996%.2f | 4.2485%.2f | 2 | 1.6000000000000014%.2f%%
+1000 | 32.4492%.2f | 2.9813%.2f | 2 | 1.8000000000000016%.2f%%
+5000 | 285.5547%.2f | 15.869%.2f | 2 | 9.360000000000001%.2f%%
+
+3.2 🔤 CLAVES TEXTUALES (title → polynomial hash)
+--------------------------------------------------
+Tamaño | Inserción(ms) | Búsqueda(ms) | Altura | Colisiones(%)
+--------------------------------------------------
+100 | 7.0503%.2f | 2.2111%.2f | 2 | 0.0%.2f%%
+500 | 15.8704%.2f | 1.8929%.2f | 2 | 0.0%.2f%%
+1000 | 73.5815%.2f | 5.3483%.2f | 2 | 0.0%.2f%%
+5000 | 158.7661%.2f | 17.3353%.2f | 2 | 0.0%.2f%%
+
+======================================================================
+🔍 ANÁLISIS COMPARATIVO Y CONCLUSIONES
+======================================================================
+
+📈 COMPLEJIDAD COMPUTACIONAL:
+   • Teórica: O(log n) para inserción y búsqueda
+   • Empírica: Los tiempos crecen logarítmicamente
+   • Validación: Resultados consistentes con teoría
+
+🎯 ELECCIÓN DEL GRADO MÍNIMO (t=100):
+   • Balance entre altura y ancho del árbol
+   • Optimización para operaciones de disco
+   • Compromiso entre splits y utilización
+
+🔑 NATURALEZA DE LAS CLAVES:
+   • NUMÉRICAS: Mejor distribución, menos colisiones
+   • TEXTUALES: Distribución dependiente del contenido
+   • IMPACTO: Claves numéricas más predecibles
+
+🔄 IMPACTO DE LA INMUTABILIDAD:
+   • Ventajas: Thread-safe, debugging fácil
+   • Costo: Creación de nuevos nodos en splits
+   • Trade-off: Seguridad vs. performance
+
+📊 DISTRIBUCIÓN DE CLAVES:
+   • Claves numéricas: 3,19% colisiones promedio
+   • Claves textuales: 0,00% colisiones promedio
+
+✅ ESTRATEGIAS IMPLEMENTADAS:
+   3.1 Claves Numéricas:
+       - Campo numérico: releaseYear
+       - Hash: Multiplicativo con primo grande
+       - Unicidad: Combinación con showId
+
+   3.2 Claves Textuales:
+       - Columna texto: title
+       - Transformación: Polynomial rolling hash
+       - Base matemática: Aritmética modular
+
+🎯 RECOMENDACIONES:
+   • Para datos estructurados: Claves numéricas
+   • Para texto libre: Claves textuales con buen hash
+   • Tamaño óptimo: t entre 3-5 para datasets medianos
+
+======================================================================

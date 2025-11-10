@@ -34,7 +34,7 @@ class NetflixDataLoaderSpec extends FunSuite {
   }
 
   test("parseCSVLine handles valid CSV line") {
-    val validLine = "s1,Movie Title,Movie,Director,Cast,Country,2020-01-01,2020,PG-13,90 min,Drama,Description"
+    val validLine = "s1,Movie,Movie Title,Director,Cast,Country,2020-01-01,2020,PG-13,90 min,Drama,Description"
     val record = NetflixDataLoader.parseCSVLine(validLine)
 
     assert(record.isDefined)
@@ -115,4 +115,53 @@ class NetflixDataLoaderSpec extends FunSuite {
     // No debería lanzar excepción
     NetflixDataLoader.analyzeDataset(records)
   }
+
+    test("splitCSV method handles quoted fields correctly") {
+      // Probar el metodo splitCSV directamente
+      val testLine1 = """s1,Movie,"Movie Title",Director A,"Actor1, Actor2",Country A"""
+      val result1 = NetflixDataLoader.splitCSV(testLine1)
+
+      assertEquals(result1.length, 6)
+      assertEquals(result1(0), "s1")
+      assertEquals(result1(1), "Movie")
+      assertEquals(result1(2), "Movie Title") // ✅ Esto era el problema
+      assertEquals(result1(3), "Director A")
+      assertEquals(result1(4), "Actor1, Actor2") // También con coma interna
+
+      // Probar sin comillas
+      val testLine2 = "s2,Movie,Simple Movie,Director B,Actor3,Country B"
+      val result2 = NetflixDataLoader.splitCSV(testLine2)
+      assertEquals(result2(2), "Simple Movie")
+
+      // Probar campo vacío
+      val testLine3 = "s3,Movie,Another Movie,,Actor4,Country C"
+      val result3 = NetflixDataLoader.splitCSV(testLine3)
+      assertEquals(result3(3), "") // Campo director vacío
+    }
+
+    test("parseCSVLine handles real Netflix data format") {
+      // Simular una línea real del dataset Netflix
+      val realLine = """s1,Movie,Movie Title,Director Name,"Actor1, Actor2, Actor3","United States, Canada","September 1, 2020",2020,PG-13,90 min,"Dramas, Romantic Movies","A description of the movie"""
+
+      val record = NetflixDataLoader.parseCSVLine(realLine)
+
+      assert(record.isDefined)
+      assertEquals(record.get.showId, "s1")
+      assertEquals(record.get.title, "Movie Title") // ✅ El problema principal
+      assertEquals(record.get.`type`, "Movie")
+      assertEquals(record.get.director, "Director Name")
+      assertEquals(record.get.cast, "Actor1, Actor2, Actor3")
+      assertEquals(record.get.country, "United States, Canada")
+      assertEquals(record.get.releaseYear, 2020)
+      assertEquals(record.get.rating, "PG-13")
+      assertEquals(record.get.duration, "90 min")
+      assertEquals(record.get.listedIn, "Dramas, Romantic Movies")
+    }
+
+    private def createTestCSV(content: String): String = {
+      val tempFile = Files.createTempFile("netflix-test", ".csv")
+      Files.write(tempFile, content.getBytes("UTF-8"))
+      tempFile.toString
+    }
+  
 }

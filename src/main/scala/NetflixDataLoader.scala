@@ -78,17 +78,22 @@ object NetflixDataLoader {
     Try {
       val fields = splitCSV(line)
 
+      // DEBUG: Mostrar lo que se está parseando
+      if (fields.length >= 3) {
+        println(s"DEBUG - Parsing line. Title field[2]: '${fields(2)}'")
+      }
+
       if (fields.length >= 12) {
-        // Limpiar y normalizar campos del dataset real
+        // Limpiar campos - manejar valores nulos/vacíos
         val cleanFields = fields.map { field =>
-          if (field == null || field.isEmpty || field == "null") ""
-          else field.trim.replaceAll("^\"|\"$", "")
+          if (field == null || field.isEmpty || field.toLowerCase == "null") ""
+          else field.trim
         }
 
         NetflixRecord(
           showId = cleanFields(0),
-          title = cleanFields(1),
-          `type` = cleanFields(2),
+          `type` = cleanFields(1),
+          title = cleanFields(2),
           director = cleanFields(3),
           cast = cleanFields(4),
           country = cleanFields(5),
@@ -100,34 +105,76 @@ object NetflixDataLoader {
           description = cleanFields(11)
         )
       } else {
+        println(s"WARN - Línea incompleta. Campos: ${fields.length}, Esperados: 12")
+        println(s"WARN - Line: ${line.take(100)}...")
         throw new IllegalArgumentException(s"Línea CSV incompleta: ${fields.length} campos")
       }
     }.recover {
         case e: Exception =>
-          // println(s"Error parseando línea: ${e.getMessage}")
+          println(s"ERROR parseando línea: ${e.getMessage}")
           null
       }.toOption
       .flatMap(Option(_)) // Convertir null a None
+  }
+
+  def parseQuotedCSV(line: String): Array[String] = {
+    val result = scala.collection.mutable.ArrayBuffer[String]()
+    var currentField = new StringBuilder
+    var inQuotes = false
+
+    line.foreach { char =>
+      char match {
+        case '"' =>
+          inQuotes = !inQuotes
+          currentField.append(char)
+        case ',' if !inQuotes =>
+          result += currentField.toString().trim
+          currentField.clear()
+        case _ =>
+          currentField.append(char)
+      }
+    }
+
+    // Añadir el último campo
+    if (currentField.nonEmpty) {
+      result += currentField.toString().trim
+    }
+
+    result.toArray
   }
 
   /**
    * Divide una línea CSV manejando comas dentro de comillas
    */
   // En NetflixDataLoader.scala - corregir el metodo splitCSV
-  def splitCSV(line: String): Array[String] = {
-    // Manejo mejorado de CSV - dividir por comas fuera de comillas
-    line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)
-      .map { field =>
-        // Remover comillas al inicio y final completamente
-        val cleaned = field.trim
-          .replaceAll("^\"\"", "\"") // Manejar comillas dobles al inicio
-          .replaceAll("^\"", "")     // Remover comilla inicial
-          .replaceAll("\"$", "")     // Remover comilla final
-          .replaceAll("\"\"", "\"")  // Manejar comillas escapadas
-          .trim
+  // CORRIGE el metodo splitCSV en NetflixDataLoader.scala
 
-        if (cleaned.isEmpty) "" else cleaned
+  /**
+   * Divide una línea CSV manejando comas dentro de comillas CORRECTAMENTE
+   */
+  // ALTERNATIVA: splitCSV super simple y confiable
+  def splitCSV(line: String): Array[String] = {
+    val result = scala.collection.mutable.ArrayBuffer[String]()
+    var current = new StringBuilder
+    var inQuotes = false
+
+    for (i <- 0 until line.length) {
+      val c = line(i)
+
+      if (c == '"') {
+        inQuotes = !inQuotes
+        // No añadimos las comillas al resultado
+      } else if (c == ',' && !inQuotes) {
+        result += current.toString().trim
+        current.clear()
+      } else {
+        current.append(c)
       }
+    }
+
+    // Añadir el último campo
+    result += current.toString().trim
+    result.toArray
   }
 
   /**

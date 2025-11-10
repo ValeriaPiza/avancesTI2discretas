@@ -292,4 +292,205 @@ object ExperimentRunner {
     println(s"Claves numéricas: ${numericResult.treeHeight} niveles de altura")
     println(s"Claves textuales: ${textResult.treeHeight} niveles de altura")
   }
+
+  // Agrega este metodo a ExperimentRunner.scala
+  // En ExperimentRunner.scala - versión mejorada para matplotlib
+  def generateChartData(results: List[ExperimentResult]): Unit = {
+    println("📊 Generando archivos CSV para matplotlib...")
+
+    // Crear carpeta graficas si no existe
+    new File("results/graficas").mkdirs()
+
+    val numericResults = results.filter(_.keyType == NumericKeyType)
+    val textResults = results.filter(_.keyType == TextKeyType)
+
+    // 1. Datos para gráfica de tiempos vs tamaño
+    generateTimeVsSizeCSV(numericResults, textResults)
+
+    // 2. Datos para gráfica de altura vs tamaño
+    generateHeightVsSizeCSV(numericResults, textResults)
+
+    // 3. Datos para gráfica de colisiones
+    generateCollisionAnalysisCSV(numericResults, textResults)
+
+    // 4. Datos para complejidad teórica vs experimental
+    generateComplexityAnalysisCSV(numericResults, textResults)
+
+    // 5. Datos comparativos completos
+    generateComparativeAnalysisCSV(results)
+
+    println("✅ Archivos CSV para matplotlib generados en: results/graficas/")
+  }
+
+  private def generateTimeVsSizeCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/tiempos_vs_tamaño.csv"))
+    try {
+      writer.println("tamaño_dataset,tipo_clave,tiempo_insercion_ms,tiempo_busqueda_ms")
+
+      numeric.foreach { result =>
+        writer.println(s"${result.datasetSize},numerica,${result.insertionTime / 1e6},${result.searchTime / 1e6}")
+      }
+
+      text.foreach { result =>
+        writer.println(s"${result.datasetSize},textual,${result.insertionTime / 1e6},${result.searchTime / 1e6}")
+      }
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateHeightVsSizeCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/altura_vs_tamaño.csv"))
+    try {
+      writer.println("tamaño_dataset,tipo_clave,altura_arbol,altura_teorica")
+
+      numeric.foreach { result =>
+        val theoreticalHeight = math.ceil(math.log(result.datasetSize) / math.log(6)).toInt // para t=3
+        writer.println(s"${result.datasetSize},numerica,${result.treeHeight},$theoreticalHeight")
+      }
+
+      text.foreach { result =>
+        val theoreticalHeight = math.ceil(math.log(result.datasetSize) / math.log(6)).toInt
+        writer.println(s"${result.datasetSize},textual,${result.treeHeight},$theoreticalHeight")
+      }
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateCollisionAnalysisCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/analisis_colisiones.csv"))
+    try {
+      writer.println("tamaño_dataset,tipo_clave,claves_unicas,tasa_colisiones,eficiencia")
+
+      numeric.foreach { result =>
+        val efficiency = 1.0 - result.keyDistribution.collisionRate
+        writer.println(s"${result.datasetSize},numerica,${result.keyDistribution.uniqueKeys},${result.keyDistribution.collisionRate},$efficiency")
+      }
+
+      text.foreach { result =>
+        val efficiency = 1.0 - result.keyDistribution.collisionRate
+        writer.println(s"${result.datasetSize},textual,${result.keyDistribution.uniqueKeys},${result.keyDistribution.collisionRate},$efficiency")
+      }
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateComplexityAnalysisCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/analisis_complejidad.csv"))
+    try {
+      writer.println("tamaño_dataset,tipo_clave,log_n,tiempo_insercion_ms,operaciones_teoricas")
+
+      numeric.foreach { result =>
+        val logN = math.log(result.datasetSize)
+        val theoreticalOps = logN * 100 // Factor de escala para comparación
+        writer.println(s"${result.datasetSize},numerica,$logN,${result.insertionTime / 1e6},$theoreticalOps")
+      }
+
+      text.foreach { result =>
+        val logN = math.log(result.datasetSize)
+        val theoreticalOps = logN * 100
+        writer.println(s"${result.datasetSize},textual,$logN,${result.insertionTime / 1e6},$theoreticalOps")
+      }
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateComparativeAnalysisCSV(results: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/analisis_comparativo.csv"))
+    try {
+      writer.println("tamaño_dataset,tipo_clave,altura,tiempo_insercion_ms,tiempo_busqueda_ms,tasa_colisiones,balance_arbol")
+
+      results.foreach { result =>
+        val balance = if (result.treeHeight > 0) result.treeSize.toDouble / result.treeHeight else 0
+        writer.println(s"${result.datasetSize},${result.keyType},${result.treeHeight},${result.insertionTime / 1e6},${result.searchTime / 1e6},${result.keyDistribution.collisionRate},$balance")
+      }
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateOperationTimesCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/tiempos_operacion.csv"))
+
+    try {
+      writer.println("datasetSize,keyType,insertionTimeMs,searchTimeMs")
+
+      numeric.foreach { result =>
+        writer.println(s"${result.datasetSize},numerica,${result.insertionTime / 1e6},${result.searchTime / 1e6}")
+      }
+
+      text.foreach { result =>
+        writer.println(s"${result.datasetSize},textual,${result.insertionTime / 1e6},${result.searchTime / 1e6}")
+      }
+
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateTreeStructureCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/estructura_arbol.csv"))
+
+    try {
+      writer.println("datasetSize,keyType,treeHeight,treeSize,avgKeysPerNode")
+
+      numeric.foreach { result =>
+        val avgKeys = if (result.treeHeight > 0) result.treeSize.toDouble / result.treeHeight else 0
+        writer.println(s"${result.datasetSize},numerica,${result.treeHeight},${result.treeSize},$avgKeys")
+      }
+
+      text.foreach { result =>
+        val avgKeys = if (result.treeHeight > 0) result.treeSize.toDouble / result.treeHeight else 0
+        writer.println(s"${result.datasetSize},textual,${result.treeHeight},${result.treeSize},$avgKeys")
+      }
+
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateKeyDistributionCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/distribucion_claves.csv"))
+
+    try {
+      writer.println("keyType,datasetSize,uniqueKeys,collisionRate,meanKey,stdDevKey")
+
+      numeric.foreach { result =>
+        writer.println(s"numerica,${result.datasetSize},${result.keyDistribution.uniqueKeys},${result.keyDistribution.collisionRate},${result.keyDistribution.mean},${result.keyDistribution.stdDev}")
+      }
+
+      text.foreach { result =>
+        writer.println(s"textual,${result.datasetSize},${result.keyDistribution.uniqueKeys},${result.keyDistribution.collisionRate},${result.keyDistribution.mean},${result.keyDistribution.stdDev}")
+      }
+
+    } finally {
+      writer.close()
+    }
+  }
+
+  private def generateComplexityCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {
+    val writer = new PrintWriter(new File("results/graficas/complejidad.csv"))
+
+    try {
+      writer.println("datasetSize,keyType,logN,theoreticalHeight,actualHeight,insertionTimeMs")
+
+      numeric.foreach { result =>
+        val logN = math.log(result.datasetSize)
+        val theoreticalHeight = math.ceil(logN / math.log(6)).toInt // para t=3, 2t=6
+        writer.println(s"${result.datasetSize},numerica,$logN,$theoreticalHeight,${result.treeHeight},${result.insertionTime / 1e6}")
+      }
+
+      text.foreach { result =>
+        val logN = math.log(result.datasetSize)
+        val theoreticalHeight = math.ceil(logN / math.log(6)).toInt
+        writer.println(s"${result.datasetSize},textual,$logN,$theoreticalHeight,${result.treeHeight},${result.insertionTime / 1e6}")
+      }
+
+    } finally {
+      writer.close()
+    }
+  }
 }

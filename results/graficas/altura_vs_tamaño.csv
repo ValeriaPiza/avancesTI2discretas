@@ -1,9 +1,0 @@
-tamaño_dataset,tipo_clave,altura_arbol,altura_teorica
-100,numerica,2,3
-500,numerica,2,4
-1000,numerica,2,4
-5000,numerica,2,5
-100,textual,2,3
-500,textual,2,4
-1000,textual,2,4
-5000,textual,2,5

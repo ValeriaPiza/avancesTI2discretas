@@ -27,7 +27,7 @@ object ExperimentRunner {
                             sampleSizes: List[Int]
                           ): List[ExperimentResult] = {
 
-    println("🧪 INICIANDO EXPERIMENTOS CON DATASET NETFLIX")
+    println("INICIANDO EXPERIMENTOS CON DATASET NETFLIX")
     println("=" * 60)
 
     // Analizar dataset y comparar tipos de claves
@@ -37,7 +37,7 @@ object ExperimentRunner {
     val results = sampleSizes.flatMap { size =>
       if (size <= records.length) {
         println(s"\n" + "─" * 50)
-        println(s"📊 EXPERIMENTO CON MUESTRA DE $size REGISTROS")
+        println(s"EXPERIMENTO CON MUESTRA DE $size REGISTROS")
         println("─" * 50)
 
         val sample = NetflixDataLoader.sampleRecords(records, size)
@@ -48,12 +48,12 @@ object ExperimentRunner {
 
         List(numericResult, textResult)
       } else {
-        println(s"⚠️  Tamaño de muestra $size excede el dataset (${records.length})")
+        println(s"Tamaño de muestra $size excede el dataset (${records.length})")
         List.empty[ExperimentResult]
       }
     }
 
-    println("\n✅ TODOS LOS EXPERIMENTOS COMPLETADOS")
+    println("\nTODOS LOS EXPERIMENTOS COMPLETADOS")
     results
   }
 
@@ -61,13 +61,13 @@ object ExperimentRunner {
    * Ejecuta experimento con claves numéricas
    */
   def runNumericKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
-    println(s"\n🔢 EJECUTANDO 3.1 CLAVES NUMÉRICAS")
+    println(s"\nEJECUTANDO 3.1 CLAVES NUMÉRICAS")
     println("   Estrategia: releaseYear + hash multiplicativo para unicidad")
 
     val numericKeys: List[Int] = records.map(KeyGenerator.generateNumericKey)
     val keyDistribution: DistributionStats = KeyGenerator.analyzeDistribution(numericKeys)
 
-    println(s"   📈 Distribución: ${keyDistribution.uniqueKeys}/${keyDistribution.totalKeys} únicas " +
+    println(s"Distribución: ${keyDistribution.uniqueKeys}/${keyDistribution.totalKeys} únicas " +
       s"(${(keyDistribution.collisionRate * 100).formatted("%.2f")}% colisiones)")
 
     // Medir tiempo de inserción
@@ -81,10 +81,10 @@ object ExperimentRunner {
     searchKeys.foreach(numericTree.search)
     val searchTime: Long = System.nanoTime() - searchStart
 
-    println(s"   ⏱️  Inserción: ${insertionTime / 1e6}%.2f ms")
-    println(s"   🔍 Búsqueda: ${searchTime / 1e6}%.2f ms")
-    println(s"   🌳 Altura del árbol: ${numericTree.height}")
-    println(s"   📏 Tamaño del árbol: ${numericTree.size} claves")
+    println(s"Inserción: ${insertionTime / 1e6}%.2f ms")
+    println(s"Búsqueda: ${searchTime / 1e6}%.2f ms")
+    println(s"Altura del árbol: ${numericTree.height}")
+    println(s"Tamaño del árbol: ${numericTree.size} claves")
 
     ExperimentResult(
       treeType = TreeType,
@@ -102,13 +102,13 @@ object ExperimentRunner {
    * Ejecuta experimento con claves textuales
    */
   def runTextKeyExperiment(records: List[NetflixRecord], t: Int): ExperimentResult = {
-    println(s"\n🔤 EJECUTANDO 3.2 CLAVES TEXTUALES")
+    println(s"\nEJECUTANDO 3.2 CLAVES TEXTUALES")
     println("   Estrategia: title → polynomial hash con aritmética modular")
 
     val textKeys: List[Int] = records.map(KeyGenerator.generateTextKey)
     val keyDistribution: DistributionStats = KeyGenerator.analyzeDistribution(textKeys)
 
-    println(s"   📈 Distribución: ${keyDistribution.uniqueKeys}/${keyDistribution.totalKeys} únicas " +
+    println(s"Distribución: ${keyDistribution.uniqueKeys}/${keyDistribution.totalKeys} únicas " +
       s"(${(keyDistribution.collisionRate * 100).formatted("%.2f")}% colisiones)")
 
     // Medir tiempos
@@ -121,10 +121,10 @@ object ExperimentRunner {
     searchKeys.foreach(textTree.search)
     val searchTime: Long = System.nanoTime() - searchStart
 
-    println(s"   ⏱️  Inserción: ${insertionTime / 1e6}%.2f ms")
-    println(s"   🔍 Búsqueda: ${searchTime / 1e6}%.2f ms")
-    println(s"   🌳 Altura del árbol: ${textTree.height}")
-    println(s"   📏 Tamaño del árbol: ${textTree.size} claves")
+    println(s"Inserción: ${insertionTime / 1e6}%.2f ms")
+    println(s"Búsqueda: ${searchTime / 1e6}%.2f ms")
+    println(s"Altura del árbol: ${textTree.height}")
+    println(s"Tamaño del árbol: ${textTree.size} claves")
 
     ExperimentResult(
       treeType = TreeType,
@@ -174,7 +174,7 @@ object ExperimentRunner {
         )
       }
 
-      println(s"✅ Resultados guardados en: $filePath")
+      println(s"Resultados guardados en: $filePath")
     } finally {
       writer.close()
     }
@@ -190,11 +190,11 @@ object ExperimentRunner {
     val report = new StringBuilder
 
     report.append("=" * 70 + "\n")
-    report.append("📊 INFORME DE ANÁLISIS EXPERIMENTAL - B-TREE NETFLIX\n")
+    report.append("INFORME DE ANÁLISIS EXPERIMENTAL - B-TREE NETFLIX\n")
     report.append("=" * 70 + "\n\n")
 
     // Resultados de claves numéricas
-    report.append("3.1 🔢 CLAVES NUMÉRICAS (releaseYear + hash)\n")
+    report.append("3.1 CLAVES NUMÉRICAS (releaseYear + hash)\n")
     report.append("-" * 50 + "\n")
     report.append("Tamaño | Inserción(ms) | Búsqueda(ms) | Altura | Colisiones(%)\n")
     report.append("-" * 50 + "\n")
@@ -208,7 +208,7 @@ object ExperimentRunner {
     }
 
     // Resultados de claves textuales
-    report.append("\n3.2 🔤 CLAVES TEXTUALES (title → polynomial hash)\n")
+    report.append("\n3.2 CLAVES TEXTUALES (title → polynomial hash)\n")
     report.append("-" * 50 + "\n")
     report.append("Tamaño | Inserción(ms) | Búsqueda(ms) | Altura | Colisiones(%)\n")
     report.append("-" * 50 + "\n")
@@ -223,54 +223,54 @@ object ExperimentRunner {
 
     // Análisis comparativo
     report.append("\n" + "=" * 70 + "\n")
-    report.append("🔍 ANÁLISIS COMPARATIVO Y CONCLUSIONES\n")
+    report.append("ANÁLISIS COMPARATIVO Y CONCLUSIONES\n")
     report.append("=" * 70 + "\n\n")
 
-    report.append("📈 COMPLEJIDAD COMPUTACIONAL:\n")
-    report.append("   • Teórica: O(log n) para inserción y búsqueda\n")
-    report.append("   • Empírica: Los tiempos crecen logarítmicamente\n")
-    report.append("   • Validación: Resultados consistentes con teoría\n\n")
+    report.append("OMPLEJIDAD COMPUTACIONAL:\n")
+    report.append(" • Teórica: O(log n) para inserción y búsqueda\n")
+    report.append(" • Empírica: Los tiempos crecen logarítmicamente\n")
+    report.append(" • Validación: Resultados consistentes con teoría\n\n")
 
-    report.append("🎯 ELECCIÓN DEL GRADO MÍNIMO (t=" + results.headOption.map(_.treeSize).getOrElse(3) + "):\n")
-    report.append("   • Balance entre altura y ancho del árbol\n")
-    report.append("   • Optimización para operaciones de disco\n")
-    report.append("   • Compromiso entre splits y utilización\n\n")
+    report.append("ELECCIÓN DEL GRADO MÍNIMO (t=" + results.headOption.map(_.treeSize).getOrElse(3) + "):\n")
+    report.append(" • Balance entre altura y ancho del árbol\n")
+    report.append(" • Optimización para operaciones de disco\n")
+    report.append(" • Compromiso entre splits y utilización\n\n")
 
-    report.append("🔑 NATURALEZA DE LAS CLAVES:\n")
-    report.append("   • NUMÉRICAS: Mejor distribución, menos colisiones\n")
-    report.append("   • TEXTUALES: Distribución dependiente del contenido\n")
-    report.append("   • IMPACTO: Claves numéricas más predecibles\n\n")
+    report.append("NATURALEZA DE LAS CLAVES:\n")
+    report.append(" • NUMÉRICAS: Mejor distribución, menos colisiones\n")
+    report.append(" • TEXTUALES: Distribución dependiente del contenido\n")
+    report.append(" • IMPACTO: Claves numéricas más predecibles\n\n")
 
-    report.append("🔄 IMPACTO DE LA INMUTABILIDAD:\n")
-    report.append("   • Ventajas: Thread-safe, debugging fácil\n")
-    report.append("   • Costo: Creación de nuevos nodos en splits\n")
-    report.append("   • Trade-off: Seguridad vs. performance\n\n")
+    report.append("IMPACTO DE LA INMUTABILIDAD:\n")
+    report.append(" • Ventajas: Thread-safe, debugging fácil\n")
+    report.append(" • Costo: Creación de nuevos nodos en splits\n")
+    report.append(" • Trade-off: Seguridad vs. performance\n\n")
 
-    report.append("📊 DISTRIBUCIÓN DE CLAVES:\n")
+    report.append("DISTRIBUCIÓN DE CLAVES:\n")
 
     if (results.nonEmpty) {
       val avgNumericCollisions = numericResults.map(_.keyDistribution.collisionRate).sum / numericResults.size
       val avgTextCollisions = textResults.map(_.keyDistribution.collisionRate).sum / textResults.size
 
-      report.append(s"   • Claves numéricas: ${(avgNumericCollisions * 100).formatted("%.2f")}% colisiones promedio\n")
-      report.append(s"   • Claves textuales: ${(avgTextCollisions * 100).formatted("%.2f")}% colisiones promedio\n")
+      report.append(s" • Claves numéricas: ${(avgNumericCollisions * 100).formatted("%.2f")}% colisiones promedio\n")
+      report.append(s" • Claves textuales: ${(avgTextCollisions * 100).formatted("%.2f")}% colisiones promedio\n")
     }
 
-    report.append("\n✅ ESTRATEGIAS IMPLEMENTADAS:\n")
-    report.append("   3.1 Claves Numéricas:\n")
-    report.append("       - Campo numérico: releaseYear\n")
-    report.append("       - Hash: Multiplicativo con primo grande\n")
-    report.append("       - Unicidad: Combinación con showId\n\n")
+    report.append("\nESTRATEGIAS IMPLEMENTADAS:\n")
+    report.append("3.1 Claves Numéricas:\n")
+    report.append(" - Campo numérico: releaseYear\n")
+    report.append(" - Hash: Multiplicativo con primo grande\n")
+    report.append(" - Unicidad: Combinación con showId\n\n")
 
-    report.append("   3.2 Claves Textuales:\n")
-    report.append("       - Columna texto: title\n")
-    report.append("       - Transformación: Polynomial rolling hash\n")
-    report.append("       - Base matemática: Aritmética modular\n\n")
+    report.append("3.2 Claves Textuales:\n")
+    report.append(" - Columna texto: title\n")
+    report.append(" - Transformación: Polynomial rolling hash\n")
+    report.append(" - Base matemática: Aritmética modular\n\n")
 
-    report.append("🎯 RECOMENDACIONES:\n")
-    report.append("   • Para datos estructurados: Claves numéricas\n")
-    report.append("   • Para texto libre: Claves textuales con buen hash\n")
-    report.append("   • Tamaño óptimo: t entre 3-5 para datasets medianos\n")
+    report.append("RECOMENDACIONES:\n")
+    report.append(" • Para datos estructurados: Claves numéricas\n")
+    report.append(" • Para texto libre: Claves textuales con buen hash\n")
+    report.append(" • Tamaño óptimo: t entre 3-5 para datasets medianos\n")
 
     report.append("\n" + "=" * 70 + "\n")
 
@@ -296,7 +296,7 @@ object ExperimentRunner {
   // Agrega este metodo a ExperimentRunner.scala
   // En ExperimentRunner.scala - versión mejorada para matplotlib
   def generateChartData(results: List[ExperimentResult]): Unit = {
-    println("📊 Generando archivos CSV para matplotlib...")
+    println("Generando archivos CSV para matplotlib...")
 
     // Crear carpeta graficas si no existe
     new File("results/graficas").mkdirs()
@@ -319,7 +319,7 @@ object ExperimentRunner {
     // 5. Datos comparativos completos
     generateComparativeAnalysisCSV(results)
 
-    println("✅ Archivos CSV para matplotlib generados en: results/graficas/")
+    println("Archivos CSV para matplotlib generados en: results/graficas/")
   }
 
   private def generateTimeVsSizeCSV(numeric: List[ExperimentResult], text: List[ExperimentResult]): Unit = {

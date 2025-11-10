@@ -1,6 +1,6 @@
 case class InternalNode(
                          override val keys: List[Int],
-                         val children: List[BTree],
+                         children: List[BTree],
                          override val t: Int
                        ) extends BTree {
   override val size: Int = keys.length + children.map(_.size).sum
@@ -8,11 +8,9 @@ case class InternalNode(
   override val isLeaf: Boolean = false
 
   override def search(key: Int): Boolean = {
-    // Buscar en las claves actuales
     if (keys.contains(key)) {
       true
     } else {
-      // Encontrar el hijo correcto
       val index = keys.indexWhere(k => key < k)
       val childIndex = if (index == -1) children.length - 1 else index
       children(childIndex).search(key)
@@ -20,17 +18,14 @@ case class InternalNode(
   }
 
   override def insert(key: Int): BTree = {
-    // Encontrar el índice del hijo donde insertar
     val index = keys.indexWhere(k => key < k)
     val childIndex = if (index == -1) children.length - 1 else index
 
     val child = children(childIndex)
 
     if (child.keys.length == 2 * t - 1) {
-      // El hijo está lleno, hacer split
       splitChild(childIndex, key)
     } else {
-      // Insertar normalmente en el hijo
       val updatedChild = child.insert(key)
       this.copy(children = children.updated(childIndex, updatedChild))
     }
@@ -41,7 +36,6 @@ case class InternalNode(
 
     child match {
       case Leaf(childKeys, _) =>
-        // Insertar la clave primero y luego hacer split
         val allKeys = (childKeys :+ key).sorted
 
         val midIndex = t
@@ -51,7 +45,6 @@ case class InternalNode(
 
         println(s"SPLITTING CHILD LEAF: midKey=$midKey, leftKeys=$leftKeys, rightKeys=$rightKeys")
 
-        // Actualizar las claves y hijos
         val (leftKeysParent, rightKeysParent) = keys.splitAt(childIndex)
         val newKeys = (leftKeysParent :+ midKey) ++ rightKeysParent
 
@@ -63,7 +56,6 @@ case class InternalNode(
         InternalNode(newKeys, newChildren, t)
 
       case InternalNode(childKeys, childChildren, _) =>
-        // Para nodos internos - implementación simplificada
         val allKeys = (childKeys :+ key).sorted
 
         val midIndex = t

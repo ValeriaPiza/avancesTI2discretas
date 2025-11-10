@@ -14,10 +14,10 @@ case class Leaf(
     val newKeys = (keys :+ key).sorted
 
     if (newKeys.length <= 2 * t - 1) {
-      // No necesita split
+      
       Leaf(newKeys, t)
     } else {
-      // Necesita split - CORREGIDO
+      
       val midIndex = t
       val midKey = newKeys(midIndex)
       val leftKeys = newKeys.take(midIndex)
@@ -25,7 +25,7 @@ case class Leaf(
 
       println(s"SPLITTING LEAF: midKey=$midKey, leftKeys=$leftKeys, rightKeys=$rightKeys")
 
-      // Crear nuevo nodo interno con la clave promovida
+      
       InternalNode(
         keys = List(midKey),
         children = List(Leaf(leftKeys, t), Leaf(rightKeys, t)),

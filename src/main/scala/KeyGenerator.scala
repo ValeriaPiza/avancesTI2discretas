@@ -87,7 +87,7 @@ object KeyGenerator {
       s"desviación=${textStats.stdDev.formatted("%.0f")}")
 
     // Mostrar ejemplos de claves generadas
-    println("\n🔑 EJEMPLOS DE CLAVES GENERADAS:")
+    println("\nEJEMPLOS DE CLAVES GENERADAS:")
     sample.take(3).foreach { record =>
       val numericKey = generateNumericKey(record)
       val textKey = generateTextKey(record)

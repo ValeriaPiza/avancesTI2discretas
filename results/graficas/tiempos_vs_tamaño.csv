@@ -1,9 +1,0 @@
-tamaño_dataset,tipo_clave,tiempo_insercion_ms,tiempo_busqueda_ms
-100,numerica,19.6383,3.0737
-500,numerica,28.8996,4.2485
-1000,numerica,32.4492,2.9813
-5000,numerica,285.5547,15.869
-100,textual,7.0503,2.2111
-500,textual,15.8704,1.8929
-1000,textual,73.5815,5.3483
-5000,textual,158.7661,17.3353
